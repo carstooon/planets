@@ -1,5 +1,6 @@
 import numpy as np
 import planet
+import simulation
 
 if __name__ == "__main__":
     position1 = np.array([0., 0., 0.])
