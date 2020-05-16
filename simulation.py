@@ -55,6 +55,7 @@ class Simulation:
     def calculate_acceleration(self):
         # calculates the acceleration by newtons gravity law as "a = F/m"
         # F = G * m1 * m2 * (r2-r1) / |r2 - r1|^3
+        # keep in mind that r2 and r1 are vectors
         for i in range(len(self.planets)):
             a_i = np.array([0., 0., 0.])
 
@@ -70,6 +71,33 @@ class Simulation:
             # v_new = v_old + a * delta_t
             self.planets[i].velocity = self.planets[i].velocity + a_i * self.delta_t
 
+    def calculate_energy(self):
+        # E = E_kin + E_pot
+        # E_kin = sum_i( 0.5 * m_i * v_i * v_i)
+        E_kin = 0
+        for planet in self.planets:
+            abs_v = np.linalg.norm(planet.velocity)
+            E_kin += 0.5 * planet.mass * abs_v * abs_v
+        
+        E_pot = 0
+        for i in range(len(self.planets)):
+            for j in range(0, len(self.planets)):
+                if i == j:
+                    continue
+                rel_pos = self.planets[j].position - self.planets[i].position
+                denominator = np.linalg.norm(rel_pos, ord = 2)
+                E_pot += self.Grav_const * self.planets[i].mass * self.planets[j].mass / denominator
+        return (E_kin + E_pot, E_kin, E_pot)
+
+#evaluates the distance between the interacting bodies
+    #     rel_position = planet_i.position - planet_j.position
+    #     r2 += np.linalg.norm(rel_position, ord = 2)
+             
+    #     #evaluates gravitational force in d-th dimension
+    #     grav_force_ij= self.Grav_const * planet_i.mass*planet_j.mass * (planet_j.position[d]-planet_i.position[d]) / math.fabs(math.pow(math.sqrt(r2),3))
+    #     return grav_force_ij
+
+
     def run_simulation(self):
         """
         Idea:
@@ -79,37 +107,17 @@ class Simulation:
         """
         print("Start simulation")
 
-        for planet in self.planets:
-            print(planet)
+        # for planet in self.planets:
+        #     print(planet)
 
         for i in range(self.timesteps):
+            E, E_kin, E_pot = self.calculate_energy()
+            print("E = {}, E_kin = {}, E_pot = {}".format(E, E_kin, E_pot))
             self.propagate_planets()
             self.calculate_acceleration()
 
-        for planet in self.planets:
-            print(planet)
-
-    # def next_timestep(self, delta_t, planets):
-    #     self.new_position = self.position + self.velocity * delta_t
-
-    #     a = np.array([0., 0., 0.])
-    #     for planet in planets:
-    #         if planet.name == self.name:
-    #             continue
-    #         rel_position = planet.position - self.position
-    #         denominator = np.linalg.norm(rel_position, ord = 2)
-    #         a += self.G * planet.mass * rel_position / denominator
-        
-    #     self.new_velocity = self.velocity + a * delta_t
-
-    #     # print("----------------")
-    #     # print(self.name)
-    #     # print("v_0: {}, v_1: {}".format(self.velocity, self.new_velocity))
-    #     # print("x_0: {}, x_1: {}".format(self.position, self.new_position))
-
-    # def update_position_and_velocity(self):
-    #     self.new_position, self.position = self.position, self.new_position
-    #     self.new_velocity, self.velocity = self.velocity, self.new_velocity
+        # for planet in self.planets:
+        #     print(planet)
 
 
 

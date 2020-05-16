@@ -23,9 +23,3 @@ if __name__ == "__main__":
 
     sim = simulation.Simulation(planets2, number_timesteps, delta_t)
     sim.run_simulation()
-
-    # for t_i in range(number_timesteps):
-    #     for planet in planets:
-    #         planet.next_timestep(delta_t, planets)
-    #     for planet in planets:
-    #         planet.update_position_and_velocity()
