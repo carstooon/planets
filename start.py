@@ -3,11 +3,11 @@ import planet
 import simulation
 
 if __name__ == "__main__":
-    position1 = np.array([0., 0., 0.])
+    position1 = np.array([1., 0., 0.])
     velocity1 = np.array([0., 0., 0.])
     planet1   = planet.Planet(1E10, position1, velocity1, "Finera")
     
-    position2 = np.array([1., 0., 0.])
+    position2 = np.array([10., 0., 0.])
     velocity2 = np.array([0., 0., 0.])
     planet2   = planet.Planet(1E10, position2, velocity2, "Genobi")
     
