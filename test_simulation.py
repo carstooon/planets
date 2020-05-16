@@ -55,3 +55,12 @@ def test_propagate_planets1():
     assert np.allclose(planet1.position, np.array([0.01, 0., 0.]))
     assert np.allclose(planet2.position, np.array([1. - 1. * 0.01, 0., 0.]))
     assert np.allclose(planet3.position, np.array([1., 0., 0.]))
+
+def test_run_simulation(init_simulation):
+    sim = init_simulation
+    sim.run_simulation()
+
+    assert np.allclose(sim.planets[0].velocity, -1 * sim.planets[1].velocity)
+    
+    assert np.allclose(sim.planets[0].position, np.array([0.33037785, 0., 0.]))
+    assert np.allclose(sim.planets[1].position, np.array([0.66962215, 0., 0.]))

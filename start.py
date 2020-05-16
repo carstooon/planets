@@ -15,12 +15,13 @@ if __name__ == "__main__":
     velocity3 = np.array([0., 0., 0.])
     planet3   = planet.Planet(20.0, position3, velocity3, "Altazar")
 
-    planets = [planet1, planet2, planet3]
+    planets2 = [planet1, planet2]
+    planets3 = [planet1, planet2, planet3]
 
     number_timesteps = 100
     delta_t = 0.01
 
-    sim = simulation.Simulation(planets, number_timesteps, delta_t)
+    sim = simulation.Simulation(planets2, number_timesteps, delta_t)
     sim.run_simulation()
 
     # for t_i in range(number_timesteps):

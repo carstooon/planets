@@ -53,16 +53,22 @@ class Simulation:
         
 
     def calculate_acceleration(self):
+        # calculates the acceleration by newtons gravity law as "a = F/m"
+        # F = G * m1 * m2 * (r2-r1) / |r2 - r1|^3
         for i in range(len(self.planets)):
-            for j in range(i, len(self.planets)):
+            a_i = np.array([0., 0., 0.])
+
+            for j in range(0, len(self.planets)):
                 # do not allow self-interaction
                 if i == j:
                     continue;
-
-                print("{}, {}".format(i, j))
-
-    def apply_acceleration_to_planets(self):
-        pass
+                # print("Acceleration for planet{} and planet{}".format(i, j))
+                rel_pos = self.planets[j].position - self.planets[i].position
+                denominator = np.linalg.norm(rel_pos, ord = 3)
+                a_i += self.Grav_const * self.planets[j].mass * rel_pos / denominator
+    
+            # v_new = v_old + a * delta_t
+            self.planets[i].velocity = self.planets[i].velocity + a_i * self.delta_t
 
     def run_simulation(self):
         """
@@ -73,10 +79,15 @@ class Simulation:
         """
         print("Start simulation")
 
-        # propagate_planets()
-        # calculate_acceleration()
-        # apply_acceleration_to_planets()
+        for planet in self.planets:
+            print(planet)
 
+        for i in range(self.timesteps):
+            self.propagate_planets()
+            self.calculate_acceleration()
+
+        for planet in self.planets:
+            print(planet)
 
     # def next_timestep(self, delta_t, planets):
     #     self.new_position = self.position + self.velocity * delta_t
