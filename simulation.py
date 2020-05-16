@@ -3,12 +3,11 @@ import planet
 
 #carsten implementation
 #eventuell eine virtuelle class implementieren von der verschiedene sim implementations erben koennen
-class simple:
+class Simulation:
     
-    def __init__(self, timesteps, delta_t, planets):
-        
-        self.timesteps = 100
-        self.delta_t = 0.01
+    def __init__(self, planets, timesteps = 10, delta_t = 0.01):        
+        self.timesteps = timesteps
+        self.delta_t = delta_t
         self.planets = planets
         self.Grav_const = 6.67430 * 1E-11 # m^3 / kg * s^2
         
@@ -47,6 +46,8 @@ class simple:
         else:
             self.__Grav_const = value
 
+    def run_simulation(self):
+        print("Start simulation")
 
     # def next_timestep(self, delta_t, planets):
     #     self.new_position = self.position + self.velocity * delta_t

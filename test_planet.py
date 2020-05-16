@@ -15,7 +15,7 @@ def test_mass_setter(init_planet):
     new_mass = 100
     planet1.mass = new_mass
 
-    assert(planet1.mass) == new_mass
+    assert planet1.mass == new_mass
 
 def test_mass_setter_negative_mass(init_planet):
     planet1 = init_planet
@@ -23,7 +23,7 @@ def test_mass_setter_negative_mass(init_planet):
     new_mass = -100
     planet1.mass = new_mass
 
-    assert(planet1.mass) == 0
+    assert planet1.mass == 0
 
 def test_position_setter(init_planet):
     planet1 = init_planet
@@ -57,4 +57,4 @@ def test_name_setter(init_planet):
     name = "padawan"
     planet1.name = name
 
-    assert(planet1.name) == name
+    assert planet1.name == name

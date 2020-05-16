@@ -10,7 +10,7 @@ if __name__ == "__main__":
     position2 = np.array([1., 0., 0.])
     velocity2 = np.array([0., 0., 0.])
     planet2   = planet.Planet(1E10, position2, velocity2, "Genobi")
-    planet2.mass = 10
+    
     # position3 = np.array([0., 2., 0.])
     # velocity3 = np.array([0., 0., 0.])
     # planet3   = Planet(20.0, position3, velocity3, "Altazar")
@@ -19,6 +19,9 @@ if __name__ == "__main__":
 
     number_timesteps = 100
     delta_t = 0.01
+
+    sim = simulation.Simulation(planets, number_timesteps, delta_t)
+    sim.run_simulation()
 
     # for t_i in range(number_timesteps):
     #     for planet in planets:

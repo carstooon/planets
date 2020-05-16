@@ -1,9 +1,6 @@
-import numpy as np
-
 class Planet:
     
     def __init__(self, mass, position, velocity, name):
-#        self.G = 6.67430 * 1E-11 # m^3 / kg * s^2 sollte eher groesse der Sim sein
         self.mass = mass
         self.position = position
         self.velocity = velocity
