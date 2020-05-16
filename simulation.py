@@ -46,8 +46,37 @@ class Simulation:
         else:
             self.__Grav_const = value
 
+
+    def propagate_planets(self):
+        for planet in self.planets:
+            planet.position = planet.position + planet.velocity * self.delta_t
+        
+
+    def calculate_acceleration(self):
+        for i in range(len(self.planets)):
+            for j in range(i, len(self.planets)):
+                # do not allow self-interaction
+                if i == j:
+                    continue;
+
+                print("{}, {}".format(i, j))
+
+    def apply_acceleration_to_planets(self):
+        pass
+
     def run_simulation(self):
+        """
+        Idea:
+        1. Propagate planets according to their velocity
+        2. Calculate the 3D-acceleration via newtons gravity laws per planet
+        3. Apply the acceleration to the velocity vectors of the planets
+        """
         print("Start simulation")
+
+        # propagate_planets()
+        # calculate_acceleration()
+        # apply_acceleration_to_planets()
+
 
     # def next_timestep(self, delta_t, planets):
     #     self.new_position = self.position + self.velocity * delta_t

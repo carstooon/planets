@@ -11,11 +11,11 @@ if __name__ == "__main__":
     velocity2 = np.array([0., 0., 0.])
     planet2   = planet.Planet(1E10, position2, velocity2, "Genobi")
     
-    # position3 = np.array([0., 2., 0.])
-    # velocity3 = np.array([0., 0., 0.])
-    # planet3   = Planet(20.0, position3, velocity3, "Altazar")
+    position3 = np.array([0., 2., 0.])
+    velocity3 = np.array([0., 0., 0.])
+    planet3   = planet.Planet(20.0, position3, velocity3, "Altazar")
 
-    planets = [planet1, planet2]
+    planets = [planet1, planet2, planet3]
 
     number_timesteps = 100
     delta_t = 0.01
