@@ -78,9 +78,9 @@ class Simulation:
     def calculate_energy(self):
         # E = E_kin + E_pot
         # E_kin = sum_i( 0.5 * m_i * v_i * v_i)
+        # E_pot = G * m1 * m2 / r
         E_kin = 0
         for planet in self.planets:
-            # abs_v2 = planet.velocity.dot(planet.velocity)
             E_kin += 0.5 * planet.mass * planet.velocity.dot(planet.velocity)
         
         E_pot = 0
@@ -89,12 +89,9 @@ class Simulation:
                 if i == j:
                     continue
                 rel_pos = self.planets[j].position - self.planets[i].position
-                denominator = np.sqrt(rel_pos.dot(rel_pos))
-                E_pot += -1. * self.Grav_const * self.planets[i].mass * self.planets[j].mass / denominator if denominator > 1e-30 else 0
-        if self.timestep == 0:
-            self.gauge_potential_energy = E_pot
+                r = np.sqrt(rel_pos.dot(rel_pos))
+                E_pot += -1. * self.Grav_const * self.planets[i].mass * self.planets[j].mass / r if r > 1e-30 else 0
 
-        E_pot = E_pot - self.gauge_potential_energy
         return (E_kin + E_pot, E_kin, E_pot)
 
     def run_simulation(self):
@@ -115,8 +112,6 @@ class Simulation:
         self.list_x_planet2 = []
         self.list_y_planet2 = []
 
-        # for planet in self.planets:
-        #     print(planet)
 
         for self.timestep in range(self.timesteps):
             if self.timestep % 1000 == 0:
@@ -140,9 +135,6 @@ class Simulation:
             self.list_energy_kinetic.append(E_kin)
             self.list_energy_potential.append(E_pot)
 
-        # for planet in self.planets:
-        #     print(planet)
-
 
     def save_dataframes(self):
         print("Save dataframes")
@@ -157,7 +149,7 @@ class Simulation:
                                             '2_position_x': self.list_x_planet2,
                                             '2_position_y': self.list_y_planet2})
 
-    def print_plots(self):
+    def print_energy(self, filename="001_energy.png"):
         print("Print Plots")
         sns.set()
         sns.set_style("white")
@@ -167,16 +159,23 @@ class Simulation:
         sns.lineplot(x="timestep", y="energy", data=self.df_energy, ax=ax1)
         sns.lineplot(x="timestep", y="kinetic_energy", data=self.df_energy, ax=ax2)
         sns.lineplot(x="timestep", y="potential_energy", data=self.df_energy, ax=ax3)
-        f.savefig("001_energy.png")
-
+        ax1.set_ylabel('energy')
+        ax2.set_ylabel('kinetic energy')
+        ax3.set_ylabel('potential energy')
+        ax1.set_xlabel('')
+        ax2.set_xlabel('')
+        ax3.set_xlabel('t [d]')
         
+        f.savefig(filename)
+
+    def print_position(self, filename="002_position.png"):
+        sns.set()
+        sns.set_style("white")    
         fig, ax1 = plt.subplots()
         fig.set_size_inches(8,8)
-        sns.scatterplot(x="1_position_x", y="1_position_y", data=self.df_position, ax=ax1, palette=['green'])
-        sns.scatterplot(x="2_position_x", y="2_position_y", hue="timestep", palette="Blues_r", data=self.df_position, ax=ax1)
+        sns.scatterplot(x="1_position_x", y="1_position_y", data=self.df_position, ax=ax1, palette='green')
+        sns.scatterplot(x="2_position_x", y="2_position_y", hue="timestep", palette="Blues", data=self.df_position, ax=ax1)
         plt.xlabel('x [km]')
         plt.ylabel('y [km]')
-        fig.savefig("002_position.png")
 
-        self.df_position.to_csv("position.csv")
-        
+        fig.savefig(filename)        

@@ -17,7 +17,7 @@ if __name__ == "__main__":
     
     position2 = np.array([-1.418287679667581E+08, 4.126884716814923E+07, -1.125285256157373E+04])
     velocity2 = np.array([-8.830883522656004E+0, -2.868395352996171E+01, -1.085239827735510E-05])
-    planet2   = planet.Planet(5.97219E+24, position2, velocity2, "Genobi")
+    planet2   = planet.Planet(5.97219E+24, position2, velocity2, "Earth")
 
     position3 = np.array([0., 2., 0.])
     velocity3 = np.array([0., 0., 0.])
@@ -33,4 +33,5 @@ if __name__ == "__main__":
     sim = simulation.Simulation(planets2, number_timesteps, delta_t)
     sim.run_simulation()
     sim.save_dataframes()
-    sim.print_plots()
+    sim.print_energy()
+    sim.print_position()
