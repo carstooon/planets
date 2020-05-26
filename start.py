@@ -2,6 +2,9 @@ import numpy as np
 import planet
 import simulation
 
+
+## https://rein.utsc.utoronto.ca/teaching/PSCB57_notes_lecture10.pdf page 58
+
 if __name__ == "__main__":
     # position1 = np.array([0., 0., 0.])
     # velocity1 = np.array([0, 0., 0.])
@@ -19,18 +22,22 @@ if __name__ == "__main__":
     velocity2 = np.array([-8.830883522656004E+0, -2.868395352996171E+01, -1.085239827735510E-05])
     planet2   = planet.Planet(5.97219E+24, position2, velocity2, "Earth")
 
-    position3 = np.array([0., 2., 0.])
-    velocity3 = np.array([0., 0., 0.])
-    planet3   = planet.Planet(20.0, position3, velocity3, "Altazar")
+    position3 = np.array([2.408279029085545E+07, 2.311290271817935E+08, 4.261631465386531E+06])
+    velocity3 = np.array([-2.317767379354534E+01,  4.521312752383141E+00, 6.638119814842468E-01])
+    planet3   = planet.Planet( 6.4185E+23, position3, velocity3, "Mars")
+
+    # position3 = np.array([0., 2., 0.])
+    # velocity3 = np.array([0., 0., 0.])
+    # planet3   = planet.Planet(20.0, position3, velocity3, "Altazar")
 
     planets1 = [planet1]
     planets2 = [planet1, planet2]
     planets3 = [planet1, planet2, planet3]
 
-    number_timesteps = 365
+    number_timesteps = 36500
     delta_t = 1*24*60*60.
 
-    sim = simulation.Simulation(planets2, number_timesteps, delta_t)
+    sim = simulation.Simulation(planets3, number_timesteps, delta_t)
     sim.run_simulation()
     sim.save_dataframes()
     sim.print_energy()

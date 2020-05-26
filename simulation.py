@@ -107,21 +107,18 @@ class Simulation:
         self.list_energy_kinetic = []
         self.list_energy_potential = []
         self.list_timestep = []
-        self.list_x_planet1 = []
-        self.list_y_planet1 = []
-        self.list_x_planet2 = []
-        self.list_y_planet2 = []
 
+        self.list_planets_positions = []
 
         for self.timestep in range(self.timesteps):
             if self.timestep % 1000 == 0:
                 print("Time step {}".format(self.timestep))
 
-            self.list_x_planet1.append(self.planets[0].position[0])
-            self.list_y_planet1.append(self.planets[0].position[1])
-            self.list_x_planet2.append(self.planets[1].position[0])
-            self.list_y_planet2.append(self.planets[1].position[1])            
-
+            list_position = []
+            for planet in self.planets:
+                list_position.append(planet.position)
+            self.list_planets_positions.append(list_position)
+            
             ##### LEAPFROG INTEGRATION
             self.propagate_planets(0.5)
             self.calculate_acceleration()
@@ -143,11 +140,25 @@ class Simulation:
                                          'kinetic_energy': self.list_energy_kinetic, 
                                          'potential_energy': self.list_energy_potential})
 
-        self.df_position = pd.DataFrame(data= {'timestep':  self.list_timestep,
-                                            '1_position_x': self.list_x_planet1,
-                                            '1_position_y': self.list_y_planet1,
-                                            '2_position_x': self.list_x_planet2,
-                                            '2_position_y': self.list_y_planet2})
+        ### SAVE POSITION
+        data = []
+        i = 0
+        for timestep in self.list_planets_positions:
+            data_timestep = [self.list_timestep[i]]
+            for planet in timestep:
+                data_timestep.append(planet[0])
+                data_timestep.append(planet[1])
+                data_timestep.append(planet[2])
+            data.append(data_timestep)
+            i += 1
+
+        columns = ["timestep"]
+        for i in range(len(self.planets)):
+            columns.append("planet{}_x".format(i))
+            columns.append("planet{}_y".format(i))
+            columns.append("planet{}_z".format(i))
+        self.df_position = pd.DataFrame(data=data, columns=columns)
+        # print(self.df_position)
 
     def print_energy(self, filename="001_energy.png"):
         print("Print Plots")
@@ -173,8 +184,14 @@ class Simulation:
         sns.set_style("white")    
         fig, ax1 = plt.subplots()
         fig.set_size_inches(8,8)
-        sns.scatterplot(x="1_position_x", y="1_position_y", data=self.df_position, ax=ax1, palette='green')
-        sns.scatterplot(x="2_position_x", y="2_position_y", hue="timestep", palette="Blues", data=self.df_position, ax=ax1)
+        
+        
+        for i in range(len(self.planets)):
+            sns.scatterplot(x="planet{}_x".format(i), y="planet{}_y".format(i), data=self.df_position, ax=ax1, palette='green')
+
+        # sns.scatterplot(x="planet0_x", y="planet0_y", data=self.df_position, ax=ax1, palette='green')
+        # sns.scatterplot(x="planet1_x", y="planet1_y", hue="timestep", palette="Blues", data=self.df_position, ax=ax1)
+        # sns.scatterplot(x="planet2_x", y="planet2_y", hue="timestep", palette="Reds", data=self.df_position, ax=ax1)
         plt.xlabel('x [km]')
         plt.ylabel('y [km]')
 
