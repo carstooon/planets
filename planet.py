@@ -1,3 +1,5 @@
+import math
+import numpy as np
 class Planet:
     
     def __init__(self, mass, position, velocity, name):
@@ -45,4 +47,4 @@ class Planet:
         self.__name = name
 
     def __str__(self):
-        return "name: " + str(self.name) + "\nmass: " + str(self.mass) + "\nposition: " + str(self.position) + "\nvelocity: " + str(self.velocity)
+        return "name: " + str(self.name) + "\nmass: " + str(self.mass) + "\nposition: " + str(self.position) + "\nvelocity: " + str(self.velocity) + "\nradius: " + str(np.sqrt(self.position.dot(self.position)))
