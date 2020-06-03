@@ -133,6 +133,8 @@ class Simulation:
             self.list_energy_kinetic.append(E_kin)
             self.list_energy_potential.append(E_pot)
 
+        self.save_dataframes()
+
 
     def save_dataframes(self):
         print("Save dataframes")
@@ -160,44 +162,6 @@ class Simulation:
             columns.append("planet{}_z".format(i))
         self.df_position = pd.DataFrame(data=data, columns=columns)
         # print(self.df_position)
-
-    def print_energy(self, filename="001_energy.png"):
-        print("Print Plots")
-        sns.set()
-        sns.set_style("white")
-        f, (ax1, ax2, ax3) = plt.subplots(3)
-        f.set_size_inches(8, 11)
-
-        sns.lineplot(x="timestep", y="energy", data=self.df_energy, ax=ax1)
-        sns.lineplot(x="timestep", y="kinetic_energy", data=self.df_energy, ax=ax2)
-        sns.lineplot(x="timestep", y="potential_energy", data=self.df_energy, ax=ax3)
-        ax1.set_ylabel('energy')
-        ax2.set_ylabel('kinetic energy')
-        ax3.set_ylabel('potential energy')
-        ax1.set_xlabel('')
-        ax2.set_xlabel('')
-        ax3.set_xlabel('t [d]')
-        
-        f.savefig(filename)
-
-    def print_position(self, filename="002_position.png"):
-        sns.set()
-        sns.set_style("white")    
-        fig, ax1 = plt.subplots()
-        fig.set_size_inches(8,8)
-        
-        
-        for i in range(len(self.planets)):
-            sns.scatterplot(x="planet{}_x".format(i), y="planet{}_y".format(i), data=self.df_position, ax=ax1, palette='green')
-
-        # sns.scatterplot(x="planet0_x", y="planet0_y", data=self.df_position, ax=ax1, palette='green')
-        # sns.scatterplot(x="planet1_x", y="planet1_y", hue="timestep", palette="Blues", data=self.df_position, ax=ax1)
-        # sns.scatterplot(x="planet2_x", y="planet2_y", hue="timestep", palette="Reds", data=self.df_position, ax=ax1)
-        plt.xlabel('x [km]')
-        plt.ylabel('y [km]')
-
-        fig.savefig(filename)        
-
 
 
 
