@@ -18,3 +18,4 @@ if __name__ == "__main__":
     plot = plot.Plotting()
     plot.print_energy(sim.df_energy)
     plot.print_position(sim.df_position, len(sim.planets))
+    plot.print_energy_deviation(sim.df_energy)
