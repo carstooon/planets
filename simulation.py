@@ -110,6 +110,7 @@ class Simulation:
         self.list_timestep = []
 
         self.list_planets_positions = []
+        self.list_planets_velocity  = []
 
         for self.timestep in range(self.timesteps):
             if self.timestep % 1000 == 0:
@@ -119,6 +120,10 @@ class Simulation:
             for planet in self.planets:
                 list_position.append(planet.position)
             self.list_planets_positions.append(list_position)
+            list_velocity = []
+            for planet in self.planets:
+                list_velocity.append(planet.velocity)
+            self.list_planets_velocity.append(list_velocity)
             
             ##### LEAPFROG INTEGRATION
             self.propagate_planets(0.5)
@@ -145,23 +150,34 @@ class Simulation:
 
         ### SAVE POSITION
         data = []
-        i = 0
-        for timestep in self.list_planets_positions:
-            data_timestep = [self.list_timestep[i]]
-            for planet in timestep:
-                data_timestep.append(planet[0])
-                data_timestep.append(planet[1])
-                data_timestep.append(planet[2])
+        for timestep_i in range(len(self.list_planets_positions)):
+            data_timestep = [self.list_timestep[timestep_i] * self.delta_t]
+            data_timestep.append(self.list_energy[timestep_i])
+            data_timestep.append(self.list_energy_kinetic[timestep_i])
+            data_timestep.append(self.list_energy_potential[timestep_i])
+            for planet_i in range(len(self.list_planets_positions[timestep_i])):
+                data_timestep.append(self.list_planets_positions[timestep_i][planet_i][0])
+                data_timestep.append(self.list_planets_positions[timestep_i][planet_i][1])
+                data_timestep.append(self.list_planets_positions[timestep_i][planet_i][2])
+                data_timestep.append(self.list_planets_velocity[timestep_i][planet_i][2])
+                data_timestep.append(self.list_planets_velocity[timestep_i][planet_i][2])
+                data_timestep.append(self.list_planets_velocity[timestep_i][planet_i][2])
             data.append(data_timestep)
-            i += 1
 
-        columns = ["timestep"]
+
+        columns = ["timestep", "energy", "kinetic energy", "potential energy"]
         for i in range(len(self.planets)):
             columns.append("planet{}_x".format(i))
             columns.append("planet{}_y".format(i))
             columns.append("planet{}_z".format(i))
+            columns.append("planet{}_vx".format(i))
+            columns.append("planet{}_vy".format(i))
+            columns.append("planet{}_vz".format(i))
         self.df_position = pd.DataFrame(data=data, columns=columns)
-        # print(self.df_position)
+
+        self.df_position.to_csv("output.csv")
+        self.df_position.to_pickle("output.pkl")
+        
 
 
 

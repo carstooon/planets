@@ -12,9 +12,10 @@ if __name__ == "__main__":
     number_timesteps = 365*24
     delta_t = 1*60*60.
 
-    sim = simulation.Simulation(sun_earth, number_timesteps, delta_t)
+    sim = simulation.Simulation(solar_system, number_timesteps, delta_t)
     sim.run_simulation()
     
+    print("Start Plotting")
     plot = plot.Plotting()
     plot.print_energy(sim.df_energy)
     plot.print_position(sim.df_position, len(sim.planets))
