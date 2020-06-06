@@ -173,10 +173,10 @@ class Simulation:
             columns.append("planet{}_vx".format(i))
             columns.append("planet{}_vy".format(i))
             columns.append("planet{}_vz".format(i))
-        self.df_position = pd.DataFrame(data=data, columns=columns)
+        self.df = pd.DataFrame(data=data, columns=columns)
 
-        self.df_position.to_csv("output.csv")
-        self.df_position.to_pickle("output.pkl")
+        self.df.to_csv("output.csv")
+        self.df.to_pickle("output.pkl")
         
 
 
