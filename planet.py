@@ -48,3 +48,6 @@ class Planet:
 
     def __str__(self):
         return "name: " + str(self.name) + "\nmass: " + str(self.mass) + "\nposition: " + str(self.position) + "\nvelocity: " + str(self.velocity) + "\nradius: " + str(np.sqrt(self.position.dot(self.position)))
+
+    def GetDistanceToOrigin(self):
+        return np.sqrt(self.position.dot(self.position))

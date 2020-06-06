@@ -1,6 +1,8 @@
 import numpy as np
 import planet
 import simulation
+import timeit
+import math
 
 if __name__ == "__main__":
 
@@ -17,16 +19,16 @@ if __name__ == "__main__":
     # Saturn   = planet.Planet(5.683E26, Sat_posi, Sat_velo, "Saturn")
 
     Epi_posi  = np.array([151422.0, 0.0, 0.0]) # position in km relative to Saturn
-    Epi_velo  = np.array([0.0, 1.*15.82970992, 0.0]) # in km/s
-    Epimetheus= planet.Planet(5.304E17, Epi_posi, Epi_velo, "Epimetheus") # mass in tons
+    Epi_velo  = np.array([0.0, 1.*15.82970992, 0.0]) # in km/s 15.83236769
+    Epimetheus= planet.Planet(5.5E17, Epi_posi, Epi_velo, "Epimetheus") # mass in tons
     
     Jan_posi = np.array([-151472.0, 0.0, 0.0])
-    Jan_velo = np.array([0.0, -15.82709706, 0.0])
+    Jan_velo = np.array([0.0, -15.82709706, 0.0]) #15.82975439
     Janus    = planet.Planet(1.98E18, Jan_posi, Jan_velo, "Janus")
 
     Sat_posi = np.array([0., 0., 0.])
     Sat_velo = np.array([0., 0., 0.])
-    Saturn   = planet.Planet(5.683E26, Sat_posi, Sat_velo, "Saturn")
+    Saturn   = planet.Planet(5.685E26, Sat_posi, Sat_velo, "Saturn")
 
 
 
@@ -51,20 +53,50 @@ if __name__ == "__main__":
 
 
 
+    
 
-
-    time_simulation = 3*365*24*60*60.0
+    time_simulation = 10*365*24*60*60.0
     delta_t = 10
-    precision = 1.E-6
+    precision = 1.E-7
 
     sim = simulation.RungeKutta4(Planets, delta_t, precision)
+    #sim2 = simulation.RungeKutta4(Planets, delta_t, precision)
     energy_before = sim.Energy()
     radius_before = np.sqrt(sim.planets[0].position.dot(sim.planets[0].position))
+    radius_before1 = np.sqrt(sim.planets[1].position.dot(sim.planets[1].position))
     posiX_before = sim.planets[0].position[0]
     posiY_before = sim.planets[0].position[1]
-    sim.RunSimulation(time_simulation)
 
+    start = timeit.default_timer()
+    # sim.NextStep()
+    # sim.NextStep()
+    # sim.NextStep()
+    # sim.NextStep()
+    # sim.NextStep()
+    # end = timeit.default_timer()
+    # sim2.NextStep3D()
+    # sim2.NextStep3D()
+    # sim2.NextStep3D()
+    # sim2.NextStep3D()
+    # sim2.NextStep3D()
+    # end2 = timeit.default_timer()
+
+    # print(end-start)
+    # print(end2-end)
+
+    #print(sim.system_energy)
+    #print(sim.Energy)
+    sim.RunSimulation(time_simulation)
+    end = timeit.default_timer()
+    print((end-start)/60)
     print(sim.Energy()/energy_before)
     print(np.sqrt(sim.planets[0].position.dot(sim.planets[0].position))/radius_before)
-    print(sim.planets[0].position[0]/posiX_before)
+    print(np.sqrt(sim.planets[1].position.dot(sim.planets[1].position))/radius_before1)
+
+    rel_position = sim.planets[0].position - sim.planets[1].position
+    r2 = np.sum(rel_position**2)
+    #r2 = np.linalg.norm(rel_position, ord = 2)
+    rel_distance = math.sqrt(r2)
+    print(rel_distance)
+    #print(sim.planets[0].position[0]/posiX_before)
     #print(sim.planets[0].position[1]/posiY_before)
