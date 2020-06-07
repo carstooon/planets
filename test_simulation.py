@@ -140,7 +140,7 @@ def test_fExternal(init_RungeKutta4):
 def test_Energy(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.Energy() < 0
+    assert sim.SystemEnergy() < 0
 
 def test_CalcAcceleration(init_RungeKutta4):
     sim = init_RungeKutta4

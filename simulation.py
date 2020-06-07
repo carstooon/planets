@@ -16,6 +16,14 @@ class Simulation:
         self.Grav_const = 6.67430 * 1E-20 # m^3 / kg * s^2
         self.simulated_time = 0.
 
+        self.list_energy = []
+        self.list_energy_kinetic = []
+        self.list_energy_potential = []
+        self.list_time_simulated = []
+
+        self.list_bodies_positions = []
+        self.list_bodies_velocity  = []
+
     @property
     def delta_t(self):
         return self.__delta_t
@@ -60,6 +68,109 @@ class Simulation:
 
     def __str__(self):
         return "simulated time: " + str(self.simulated_time) + "\ndelta t: " + str(self.delta_t)
+
+
+    # returns the total energy of the system at the time t
+    def SystemEnergy(self):
+
+        E_tot = 0
+        for body_i in self.bodies:
+
+            #Evaluating the potential Energy    
+            E_pot = 0
+            for body_j in self.bodies:
+            
+                #preventing that E_pot of a body is evaluated in its own gravitational field
+                if body_i is body_j: 
+	                continue
+
+                #evaluates the distance between the interacting bodies
+                rel_position = body_i.position - body_j.position
+                r2 = np.sum(rel_position**2)
+                #r2 = rel_position.dot(rel_position)
+                #r2 = np.linalg.norm(rel_position, ord = 2)
+
+                #summing pot energies of two body interaction
+                E_pot += -1. * self.Grav_const * body_i.mass * body_j.mass / math.sqrt(r2)
+            
+
+            #Evaluating the kinetic energy    
+            v2 = np.sum(body_i.velocity**2)
+
+            #Evaluating the total Energy  
+            E_tot += 0.5 * body_i.mass *(v2) + E_pot
+
+        return E_tot
+
+
+    # returns the kinetic energy of body i 
+    def KineticEnergy(self, body_i):
+
+        #Evaluating the kinetic energy    
+        v2 = np.sum(body_i.velocity**2)  
+        E_kin = 0.5 * body_i.mass *(v2)
+
+        return E_kin
+
+
+    # returns the potential energy of body i
+    def PotentialEnergy(self, body_i):
+
+        #Evaluating the potential Energy    
+        E_pot = 0
+        for body_j in self.bodies:
+            
+            #preventing that E_pot of a body is evaluated in its own gravitational field
+            if body_i is body_j: 
+	            continue
+
+            #evaluates the distance between the interacting bodies
+            rel_position = body_i.position - body_j.position
+            r2 = np.sum(rel_position**2)
+                
+            #summing pot energies of two body interaction
+            E_pot += -1. * self.Grav_const * body_i.mass * body_j.mass / math.sqrt(r2)
+
+        return E_pot
+
+    
+    def save_dataframes(self):
+        print("Save dataframes")
+        self.df_energy = pd.DataFrame(data = {'time': self.list_time_simulated, 
+                                              'energy': self.list_energy})
+
+        ### SAVE POSITION
+        data = []
+        for timestep_i in range(len(self.list_bodies_positions)):
+            data_timestep = [self.list_time_simulated[timestep_i]]
+            data_timestep.append(self.list_energy[timestep_i])
+            #data_timestep.append(self.list_energy_kinetic[timestep_i])
+            #data_timestep.append(self.list_energy_potential[timestep_i])
+            for planet_i in range(len(self.list_bodies_positions[timestep_i])):
+                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][0])
+                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][1])
+                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][2])
+                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
+                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
+                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
+            data.append(data_timestep)
+
+
+        #columns = ["timestep", "energy", "kinetic energy", "potential energy"]
+        columns = ["timestep", "energy"]
+        for i in range(len(self.bodies)):
+            columns.append("planet{}_x".format(i))
+            columns.append("planet{}_y".format(i))
+            columns.append("planet{}_z".format(i))
+            columns.append("planet{}_vx".format(i))
+            columns.append("planet{}_vy".format(i))
+            columns.append("planet{}_vz".format(i))
+        self.df = pd.DataFrame(data=data, columns=columns)
+
+        self.df.to_csv("output.csv")
+        self.df.to_pickle("output.pkl")
+        
+
 
 
 
@@ -135,17 +246,13 @@ class EulerLeapfrog(Simulation):
         """
         print("Start simulation")
 
-        self.list_energy = []
-        self.list_energy_kinetic = []
-        self.list_energy_potential = []
-        self.list_timestep = []
+        for timestep in range(self.timesteps):
+            if timestep % 1000 == 0:
+                print("Time step {}".format(timestep))
 
-        self.list_bodies_positions = []
-        self.list_bodies_velocity  = []
 
-        for self.timestep in range(self.timesteps):
-            if self.timestep % 1000 == 0:
-                print("Time step {}".format(self.timestep))
+            ##### ENERGY CALCULATION
+            E, E_kin, E_pot = self.calculate_energy()
 
             list_position = []
             for planet in self.bodies:
@@ -156,60 +263,18 @@ class EulerLeapfrog(Simulation):
                 list_velocity.append(planet.velocity)
             self.list_bodies_velocity.append(list_velocity)
             
-            ##### LEAPFROG INTEGRATION
-            self.propagate_bodies(0.5)
-            self.calculate_acceleration()
-            self.propagate_bodies(0.5)
-
-            ##### ENERGY CALCULATION
-            E, E_kin, E_pot = self.calculate_energy()
-            
-            self.list_timestep.append(self.timestep)
+            self.list_time_simulated.append(self.simulated_time)
             self.list_energy.append(E)
             self.list_energy_kinetic.append(E_kin)
             self.list_energy_potential.append(E_pot)
 
+            ##### LEAPFROG INTEGRATION
+            self.propagate_bodies(0.5)
+            self.calculate_acceleration()
+            self.propagate_bodies(0.5)
+            self.simulated_time = timestep*self.delta_t
+
         self.save_dataframes()
-
-
-    def save_dataframes(self):
-        print("Save dataframes")
-        self.df_energy = pd.DataFrame(data = {'timestep': self.list_timestep, 
-                                              'energy': self.list_energy, 
-                                              'kinetic_energy': self.list_energy_kinetic, 
-                                              'potential_energy': self.list_energy_potential})
-
-        ### SAVE POSITION
-        data = []
-        for timestep_i in range(len(self.list_bodies_positions)):
-            data_timestep = [self.list_timestep[timestep_i] * self.delta_t]
-            data_timestep.append(self.list_energy[timestep_i])
-            data_timestep.append(self.list_energy_kinetic[timestep_i])
-            data_timestep.append(self.list_energy_potential[timestep_i])
-            for planet_i in range(len(self.list_bodies_positions[timestep_i])):
-                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][0])
-                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][1])
-                data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][2])
-                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
-                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
-                data_timestep.append(self.list_bodies_velocity[timestep_i][planet_i][2])
-            data.append(data_timestep)
-
-
-        columns = ["timestep", "energy", "kinetic energy", "potential energy"]
-        for i in range(len(self.bodies)):
-            columns.append("planet{}_x".format(i))
-            columns.append("planet{}_y".format(i))
-            columns.append("planet{}_z".format(i))
-            columns.append("planet{}_vx".format(i))
-            columns.append("planet{}_vy".format(i))
-            columns.append("planet{}_vz".format(i))
-        self.df = pd.DataFrame(data=data, columns=columns)
-
-        self.df.to_csv("output.csv")
-        self.df.to_pickle("output.pkl")
-        
-
 
 
 
@@ -281,40 +346,6 @@ class RungeKutta4(Simulation):
         f_external = np.zeros(len(self.bodies[0].position))
         
         return f_external
-
-
-    # returns the total energy of the system at the time t
-    def Energy(self):
-
-        E_tot = 0
-        for body_i in self.bodies:
-
-            #Evaluating the potential Energy    
-            E_pot = 0
-            for body_j in self.bodies:
-            
-                #preventing that E_pot of a body is evaluated in its own gravitational field
-                if body_i is body_j: 
-	                continue
-
-                #evaluates the distance between the interacting bodies
-                rel_position = body_i.position - body_j.position
-                r2 = np.sum(rel_position**2)
-                #r2 = rel_position.dot(rel_position)
-                #r2 = np.linalg.norm(rel_position, ord = 2)
-
-                #summing pot energies of two body interaction
-                E_pot += -1. * self.Grav_const * body_i.mass * body_j.mass / math.sqrt(r2)
-            
-
-            #Evaluating the kinetic energy    
-            v2 = np.sum(body_i.velocity**2)
-
-            #Evaluating the total Energy  
-            E_tot += 0.5 * body_i.mass *(v2) + E_pot
-
-        return E_tot
-
 
     # returns the d-th component of the acceleration of the i-th body at the time t
     def CalcAcceleration(self, i, dim, bodies):
@@ -501,13 +532,13 @@ class RungeKutta4(Simulation):
         delta_t_orig = copy.deepcopy(self.delta_t)
         
         #Total energy of the system before our iteration step    
-        energy_before = self.Energy()
+        energy_before = self.SystemEnergy()
 
         #updating t, x and v and storing them in ttmp1, xtmp1, vtmp1
         self.NextStep3D()
 
         #Difference between the initial energy and energy after one step of iteration    
-        delta_Energy = math.fabs(self.Energy() - energy_before)
+        delta_Energy = math.fabs(self.SystemEnergy() - energy_before)
 
         rel_energy_change = math.fabs(delta_Energy / energy_before) 
         #Comparing the relative energy error with the precision
@@ -545,6 +576,21 @@ class RungeKutta4(Simulation):
             #if(rel_distance < 30000):
             #    print(rel_distance)
             #    print(self.simulated_time)
+
+            self.list_time_simulated.append(self.simulated_time)
+            self.list_energy.append(self.SystemEnergy)
+
+            list_position = []
+            for planet in self.bodies:
+                list_position.append(planet.position)
+            self.list_bodies_positions.append(list_position)
+            list_velocity = []
+            for planet in self.bodies:
+                list_velocity.append(planet.velocity)
+            self.list_bodies_velocity.append(list_velocity)
+            
+            self.save_dataframes()
+
 
             
             if(self.bodies[0].GetDistanceToOrigin() > self.bodies[1].GetDistanceToOrigin() and passed == False):
