@@ -14,7 +14,7 @@ def init_simulation():
     velocity2 = np.array([0., 0., 0.])
     planet2   = planet.Planet(1E10, position2, velocity2, "Genobi")
 
-    return simulation.Simulation([planet1, planet2], 100, 0.01)
+    return simulation.EulerLeapfrog([planet1, planet2], 100, 0.01)
 
 def test_timesteps_setter(init_simulation):
     sim = init_simulation
@@ -50,8 +50,8 @@ def test_propagate_planets1():
     velocity3 = np.array([0., 0., 0.])
     planet3   = planet.Planet(1E10, position3, velocity3, "Kalahan")
 
-    sim = simulation.Simulation([planet1, planet2, planet3], timesteps=1, delta_t=0.01)
-    sim.propagate_planets()
+    sim = simulation.EulerLeapfrog([planet1, planet2, planet3], timesteps=1, delta_t=0.01)
+    sim.propagate_bodies()
 
     assert np.allclose(planet1.position, np.array([0.01, 0., 0.]))
     assert np.allclose(planet2.position, np.array([1. - 1. * 0.01, 0., 0.]))
@@ -91,6 +91,13 @@ def test_precision_setter(init_RungeKutta4):
 
     assert sim.precision == new_precision
 
+def test_simulated_time_setter(init_RungeKutta4):
+    sim = init_RungeKutta4
+    new_simtime = 0.0001
+    sim.simulated_time = new_simtime
+
+   
+
 def test_precision_setter_not_negative(init_RungeKutta4):
     sim = init_RungeKutta4
     new_precision = -100
@@ -101,33 +108,33 @@ def test_precision_setter_not_negative(init_RungeKutta4):
 def test_fInternal_x(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.fInternal(0,1,0,sim.planets) > 0
+    assert sim.fInternal(0,1,0,sim.bodies) > 0
 
 
 
 def test_fInternal_y(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.fInternal(0,1,1,sim.planets) == 0
+    assert sim.fInternal(0,1,1,sim.bodies) == 0
 
 
 def test_fInternal3D(init_RungeKutta4):
     sim = init_RungeKutta4
-    f_int = sim.fInternal3D(0,1,sim.planets)
+    f_int = sim.fInternal3D(0,1,sim.bodies)
 
-    assert f_int[0] == sim.fInternal(0,1,0,sim.planets)
-    assert f_int[1] == sim.fInternal(0,1,1,sim.planets)
-    assert f_int[2] == sim.fInternal(0,1,2,sim.planets)
+    assert f_int[0] == sim.fInternal(0,1,0,sim.bodies)
+    assert f_int[1] == sim.fInternal(0,1,1,sim.bodies)
+    assert f_int[2] == sim.fInternal(0,1,2,sim.bodies)
 
 def test_fInternal_exception(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.fInternal(0,0,1,sim.planets) == 0
+    assert sim.fInternal(0,0,1,sim.bodies) == 0
 
 def test_fExternal(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.fExternal(0,1,sim.planets) == 0
+    assert sim.fExternal(0,1,sim.bodies) == 0
 
 
 def test_Energy(init_RungeKutta4):
@@ -138,73 +145,73 @@ def test_Energy(init_RungeKutta4):
 def test_CalcAcceleration(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    assert sim.CalcAcceleration(0,0,sim.planets) > 0
+    assert sim.CalcAcceleration(0,0,sim.bodies) > 0
 
 def test_CalcAcceleration3D(init_RungeKutta4):
     sim = init_RungeKutta4
     
-    acc = sim.CalcAcceleration3D(0,sim.planets)
-    assert acc[0] == sim.CalcAcceleration(0,0,sim.planets) 
+    acc = sim.CalcAcceleration3D(0,sim.bodies)
+    assert acc[0] == sim.CalcAcceleration(0,0,sim.bodies) 
 
 
 def test_NextStep_Planet0(init_RungeKutta4):
     sim = init_RungeKutta4
 
-    pos_x = sim.planets[0].position[0]
-    pos_y = sim.planets[0].position[1]
-    pos_z = sim.planets[0].position[2]
+    pos_y = sim.bodies[0].position[1]
+    pos_z = sim.bodies[0].position[2]
+    pos_x = sim.bodies[0].position[0]
 
-    vel_x = sim.planets[0].velocity[0]
-    vel_y = sim.planets[0].velocity[1]
-    vel_z = sim.planets[0].velocity[2]
+    vel_x = sim.bodies[0].velocity[0]
+    vel_y = sim.bodies[0].velocity[1]
+    vel_z = sim.bodies[0].velocity[2]
 
     sim.NextStep()
 
-    assert sim.planets[0].position[0] != pos_x
-    assert sim.planets[0].velocity[0] != vel_x
-    assert sim.planets[0].position[1] == pos_y
-    assert sim.planets[0].velocity[1] == vel_y
+    assert sim.bodies[0].position[0] != pos_x
+    assert sim.bodies[0].velocity[0] != vel_x
+    assert sim.bodies[0].position[1] == pos_y
+    assert sim.bodies[0].velocity[1] == vel_y
 
 def test_NextStep_Planet1(init_RungeKutta4):
     sim = init_RungeKutta4
 
-    pos_x = sim.planets[1].position[0]
-    pos_y = sim.planets[1].position[1]
-    pos_z = sim.planets[1].position[2]
+    pos_x = sim.bodies[1].position[0]
+    pos_y = sim.bodies[1].position[1]
+    pos_z = sim.bodies[1].position[2]
 
-    vel_x = sim.planets[1].velocity[0]
-    vel_y = sim.planets[1].velocity[1]
-    vel_z = sim.planets[1].velocity[2]
+    vel_x = sim.bodies[1].velocity[0]
+    vel_y = sim.bodies[1].velocity[1]
+    vel_z = sim.bodies[1].velocity[2]
 
     sim.NextStep()
 
-    assert sim.planets[1].position[0] != pos_x
-    assert sim.planets[1].velocity[0] != vel_x
-    assert sim.planets[1].position[1] == pos_y
-    assert sim.planets[1].velocity[1] == vel_y
+    assert sim.bodies[1].position[0] != pos_x
+    assert sim.bodies[1].velocity[0] != vel_x
+    assert sim.bodies[1].position[1] == pos_y
+    assert sim.bodies[1].velocity[1] == vel_y
 
 def test_NextStep3D(init_RungeKutta4):
     sim = init_RungeKutta4
     sim.NextStep()
 
-    pos_x = sim.planets[1].position[0]
-    pos_y = sim.planets[1].position[1]
-    pos_z = sim.planets[1].position[2]
+    pos_x = sim.bodies[1].position[0]
+    pos_y = sim.bodies[1].position[1]
+    pos_z = sim.bodies[1].position[2]
 
-    vel_x = sim.planets[1].velocity[0]
-    vel_y = sim.planets[1].velocity[1]
-    vel_z = sim.planets[1].velocity[2]
+    vel_x = sim.bodies[1].velocity[0]
+    vel_y = sim.bodies[1].velocity[1]
+    vel_z = sim.bodies[1].velocity[2]
 
     sim2 = init_RungeKutta4
     sim2.NextStep3D()
 
-    pos_x2 = sim2.planets[1].position[0]
-    pos_y2 = sim2.planets[1].position[1]
-    pos_z2 = sim2.planets[1].position[2]
+    pos_x2 = sim2.bodies[1].position[0]
+    pos_y2 = sim2.bodies[1].position[1]
+    pos_z2 = sim2.bodies[1].position[2]
 
-    vel_x2 = sim2.planets[1].velocity[0]
-    vel_y2 = sim2.planets[1].velocity[1]
-    vel_z2 = sim2.planets[1].velocity[2]
+    vel_x2 = sim2.bodies[1].velocity[0]
+    vel_y2 = sim2.bodies[1].velocity[1]
+    vel_z2 = sim2.bodies[1].velocity[2]
 
     assert math.isclose(pos_x,pos_x2)
     assert math.isclose(pos_y,pos_y2)
