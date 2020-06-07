@@ -147,6 +147,7 @@ class Simulation:
             #data_timestep.append(self.list_energy_kinetic[timestep_i])
             #data_timestep.append(self.list_energy_potential[timestep_i])
             for planet_i in range(len(self.list_bodies_positions[timestep_i])):
+                data_timestep.append(self.bodies[planet_i].mass)
                 data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][0])
                 data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][1])
                 data_timestep.append(self.list_bodies_positions[timestep_i][planet_i][2])
@@ -159,6 +160,7 @@ class Simulation:
         #columns = ["timestep", "energy", "kinetic energy", "potential energy"]
         columns = ["timestep", "energy"]
         for i in range(len(self.bodies)):
+            columns.append("planet{}_m".format(i))
             columns.append("planet{}_x".format(i))
             columns.append("planet{}_y".format(i))
             columns.append("planet{}_z".format(i))

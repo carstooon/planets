@@ -8,18 +8,10 @@ class Plotting():
         sns.set_style("white")
 
     def print_energy(self, df_energy, filename="001_energy.png"):
-        f, (ax1, ax2, ax3) = plt.subplots(3)
-        f.set_size_inches(8, 10)
-
+        f, ax1 = plt.subplots(1)
         sns.lineplot(x="timestep", y="energy", data=df_energy, ax=ax1)
-        sns.lineplot(x="timestep", y="kinetic energy", data=df_energy, ax=ax2)
-        sns.lineplot(x="timestep", y="potential energy", data=df_energy, ax=ax3)
         ax1.set_ylabel('energy')
-        ax2.set_ylabel('kinetic energy')
-        ax3.set_ylabel('potential energy')
-        ax1.set_xlabel('')
-        ax2.set_xlabel('')
-        ax3.set_xlabel('t [s]')
+        ax1.set_xlabel('t [s]')
         f.savefig(filename)
 
     def print_energy_deviation(self, df, filename="003_energy_deviation.png"):
